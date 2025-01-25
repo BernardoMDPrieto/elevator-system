@@ -28,6 +28,23 @@ public class Elevator {
         return cannotEnter;
     }
 
+    public void removePassenger(int passenger) {
+        if(!this.doorOpen) {
+            System.out.println("A porta está fechada");
+        }else{
+
+            if(this.currentPassenger < 1){
+                System.out.println("Todos já descereram");
+            }else{
+                this.currentPassenger -= passenger;
+                System.out.println(this.currentPassenger + " pessoas no elevador");
+            }
+
+
+        }
+
+    }
+
     Elevator(int capacityPassengers ){
         this.capacityPassengers = capacityPassengers;
         this.doorOpen = true;
