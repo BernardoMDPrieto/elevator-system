@@ -10,6 +10,58 @@ public class Elevator {
     private int capacityPassengers;
 
 
+
+    public void start(){
+        while(this.allRoutes > 0) {
+            if (this.direction.equals(Directions.FIRST_DOWN) ||
+                    this.direction.equals(Directions.TO_DOWN)) {
+                goDown();
+            } else if (this.direction.equals(Directions.FIRST_UP) ||
+                    this.direction.equals(Directions.TO_UP)) {
+                goUp();
+            }
+        }
+
+        this.direction = Directions.STOPPED;
+    }
+
+    public void goUp() {
+        for (int i = 0; i < allRoutes; i++) {
+            if (routes[i] > currentFloor) {
+                currentFloor = routes[i];
+                System.out.println("Chegamos ao andar: " + currentFloor);
+                removePassenger(1);
+                removeRoute(i);
+                i--;
+            }
+        }
+        this.direction = Directions.TO_DOWN;
+    }
+
+    public void goDown(){
+        for(int i = this.currentFloor -1; i >= this.routes[0]; i-- ){
+            for (int j = 0; j < allRoutes; j++){
+                if(routes[j] == i && routes[j] != this.currentFloor){
+                    this.currentFloor = i;
+                    System.out.println("Chegamos no andar: " + i);
+                    removePassenger(1);
+                    removeRoute(j);
+                    break;
+                }
+            }
+        }
+        this.direction = Directions.TO_UP;
+    }
+
+    private void removeRoute(int index) {
+        for (int i = index; i < allRoutes - 1; i++) {
+            routes[i] = routes[i + 1];
+        }
+        routes[allRoutes - 1] = 0;
+        allRoutes--;
+    }
+
+
     //Quem chamar esse precisa adicionar uma validação para retorno e confirmar se todos passageiros conseguiram entrar
     public int addPassenger(int passenger) {
 
@@ -34,15 +86,13 @@ public class Elevator {
         if(!this.doorOpen) {
             System.out.println("A porta está fechada");
         }else{
-
-            if(this.currentPassenger < 1){
+            if(this.currentPassenger <= 0){
+                this.currentPassenger = 0;
                 System.out.println("Todos já descereram");
             }else{
                 this.currentPassenger -= passenger;
                 System.out.println(this.currentPassenger + " pessoas no elevador");
             }
-
-
         }
     }
 
@@ -57,6 +107,9 @@ public class Elevator {
         if(this.allRoutes == 0){
             this.direction = (this.currentFloor < floor) ? Directions.FIRST_UP : Directions.FIRST_DOWN;
         }
+
+
+        //TODO Desacoplar estes dois trechos para uma classe de utils
 
         for(int i = 0; i < allRoutes; i++){
             if (floor == routes[i]){

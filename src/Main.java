@@ -5,24 +5,22 @@ public class Main {
 
         int cannotEnter = 0;
 
-        cannotEnter += elevator.addPassenger(4);
+        cannotEnter += elevator.addPassenger(6);
         System.out.println(cannotEnter);
-
-        cannotEnter += elevator.addPassenger(3);
 
         System.out.println("Não conseguiram entrar " + cannotEnter);
 
-        elevator.removePassenger(4);
-
-        elevator.addPassenger(cannotEnter);
-
-
+        elevator.addRoute(-3);
         elevator.addRoute(5);
         elevator.addRoute(1);
+
         elevator.addRoute(9);
         elevator.addRoute(1);
         elevator.addRoute(8);
-        elevator.addRoute(-3);
+        elevator.addRoute(7);
+
+
+        elevator.start();
 
 
         System.out.println(elevator);
