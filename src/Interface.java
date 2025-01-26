@@ -215,7 +215,7 @@ public class Interface {
 
                 int passengers = getValidPassengerCapacity();
 
-                Elevator elevator = ElevatorFactory.createElevator(supFloors, subFloors, passengers);
+                elevator = ElevatorFactory.createElevator(supFloors, subFloors, passengers);
                 System.out.println("Seu elevador terá as seguintes especificações: " + elevator);
 
                 repeatForm = !confirmAction();
