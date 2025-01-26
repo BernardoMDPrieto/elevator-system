@@ -4,10 +4,10 @@ import java.util.Scanner;
 public class Interface {
     static Scanner sc = new Scanner(System.in);
     private static Elevator elevator;
-    static String divisor = "===========================================================================";
+
 
     public static void showMenu() {
-        System.out.print(Ascii.systemTitle);
+        System.out.print(Ascii.SYSTEM_TITLE);
 
         try {
             System.out.println("SEJA MUITO BEM-VINDO!\n" +
@@ -15,7 +15,7 @@ public class Interface {
             elevatorSettings();
         } catch (InputMismatchException exception) {
             System.out.println("Erro: Entrada inválida! Digite um número inteiro.");
-            System.out.println(divisor);
+            System.out.println(Ascii.DIVISOR);
             sc.nextLine();
             elevatorSettings();
         }
@@ -23,14 +23,22 @@ public class Interface {
         int systemActions = 0;
         do {
             try {
-                //TODO Criar um método para listar minhas rotas
-                System.out.printf(divisor +
+                System.out.printf(Ascii.DIVISOR +
                         "\nMENU DE AÇÕES DO ELEVADOR - SELECIONE O NÚMERO DA OPÇÃO DESEJADA\n" +
                         "1 - Embarcar pessoas no elevador\n" +
                         "2 - Selecionar um andar para ir\n" +
                         "3 - Chamar o elevador para algum andar\n" +
                         "4 - Começar a rota do elevador\n" +
-                        "5 - Sair\n");
+                        "5 - Consultar os andares selecionados\n" +
+                        "6 - Sair\n");
+                System.out.println("O elevador está atualmente no andar: " + elevator.getCurrentFloor());
+                if(elevator.getCurrentPassenger() > 0){
+
+                    Ascii.printElevatorOpenedDoors();
+                }else{
+                    Ascii.printEmptyElevatorOpenedDoors();
+                }
+
 
                 systemActions = sc.nextInt();
                 startAction(systemActions);
@@ -38,7 +46,7 @@ public class Interface {
                 System.out.println("Erro: Entrada inválida! Digite um número inteiro.");
                 sc.nextLine();
             }
-        } while (systemActions != 5);
+        } while (systemActions != 6);
     }
 
     public static void startAction(int systemActions) {
@@ -54,7 +62,11 @@ public class Interface {
                 break;
             case 4:
                 runRoute();
+                break;
             case 5:
+                getRoutes();
+                break;
+            case 6:
                 break;
             default:
                 System.out.println("Insira um valor válido");
@@ -62,9 +74,9 @@ public class Interface {
     }
 
     public static void runRoute() {
-        if(elevator.getAllRoutes() > 0) {
-            for (int i = 0; i < Ascii.elevatorClosedDoors.length; i++) {
-                System.out.println(Ascii.elevatorClosedDoors[i]);
+        if (elevator.getAllRoutes() > 0) {
+            for (int i = 0; i < Ascii.ELEVATOR_CLOSED_DOORS.length; i++) {
+                System.out.println(Ascii.ELEVATOR_CLOSED_DOORS[i]);
 
                 try {
                     Thread.sleep(200);
@@ -73,8 +85,21 @@ public class Interface {
                 }
             }
             elevator.start();
-        }else{
+        } else {
             System.out.println("Adicione uma rota primeiro");
+        }
+    }
+
+    public static void getRoutes() {
+        int[] routes = elevator.getRoutes();
+        if (elevator.getAllRoutes() > 0) {
+            System.out.print("Andares selecionados: [ ");
+            for (int i = 0; i < elevator.getAllRoutes(); i++) {
+                System.out.print(routes[i] + " ");
+            }
+            System.out.println("]");
+        }else{
+            System.out.println("Você ainda não selecionou nenhuma rota");
         }
     }
 
@@ -85,9 +110,9 @@ public class Interface {
 
             if (isInvalidFloor(callFloor)) {
                 System.out.println("Este andar não existe");
-            }else if(callFloor == elevator.getCurrentFloor()){
+            } else if (callFloor == elevator.getCurrentFloor()) {
                 System.out.println("Já tem um elevador neste andar");
-            }else {
+            } else {
                 System.out.println();
                 elevator.callElevator(callFloor);
             }
@@ -105,13 +130,18 @@ public class Interface {
 
             if (passenger < 1) {
                 System.out.println("Ops! parece que você inseriu um valor inválido, tente um valor válido");
+                return;
             }
 
-            int leftBehind = elevator.addPassenger(passenger);
+            if(elevator.isDoorOpen()) {
+                int leftBehind = elevator.addPassenger(passenger);
 
-            if (leftBehind > 0) {
-                System.out.println("Opa! Parece que o elevador atingiu o limite de peso");
-                System.out.println(leftBehind + " Pessoa(s) ficaram para a próxima!");
+                if (leftBehind > 0) {
+                    System.out.println("Opa! Parece que o elevador atingiu o limite de peso");
+                    System.out.println(leftBehind + " Pessoa(s) ficaram para a próxima!");
+                }
+            }else{
+                System.out.println("O elevador está com a porta fechada!");
             }
         } catch (InputMismatchException exception) {
             System.out.println("Erro: Entrada inválida! Digite um número inteiro.");
@@ -124,6 +154,7 @@ public class Interface {
         try {
             System.out.println("Indique para qual andar você deseja ir:");
             System.out.println("Caso queira descer para o subsolo coloque o número negativo representando o andar");
+            getTotalFloors(elevator.getTotalFloors());
             int floorToGo = sc.nextInt();
 
             if (isInvalidFloor(floorToGo)) {
@@ -140,17 +171,26 @@ public class Interface {
 
     private static boolean isInvalidFloor(int floor) {
         return floor < elevator.getLowerFloors()
-                || floor >= elevator.getSuperiorFloors();
+                || floor > elevator.getSuperiorFloors();
+    }
+
+    private static void getTotalFloors(int[] totalFloors){
+        System.out.print("[ ");
+        for(int i = 0; i < totalFloors.length; i++){
+            System.out.print(totalFloors[i] + " ");
+        }
+        System.out.println("]");
     }
 
     public static void elevatorSettings() {
         System.out.println(
-                "1. Definir as especificações do prédio para o uso do elevador.\n" +
+                "Escolha uma opção:\n" +
+                        "1. Configurar as especificações do prédio para o elevador.\n" +
                         "2. Utilizar um modelo padrão para testes.\n\n" +
-                        "O modelo padrão conta com um total de 12 andares: \n" +
+                        "O modelo padrão possui:\n" +
+                        "- 9 andares acima do térreo\n" +
                         "- 2 andares no subsolo\n" +
-                        "- 9 andares acima do térreo.\n" +
-                        "Além de que neste modelo só são permitidas no máximo 6 pessoas no elevador");
+                        "- Capacidade máxima para 6 pessoas\n");
 
         int modelOfSystem = sc.nextInt();
 
@@ -160,7 +200,7 @@ public class Interface {
                 break;
             case 2:
                 elevator = ElevatorFactory.createElevator(9, 2, 6);
-                System.out.println("Modelo padrão criado com sucesso!");
+                System.out.println("Modelo padrão configurado com sucesso!");
                 break;
             default:
                 System.out.println("Opção inválida. O modelo padrão será utilizado.");
@@ -171,16 +211,78 @@ public class Interface {
     }
 
     public static void customElevatorSettings() {
-        System.out.println(divisor);
-        System.out.println("Você selecionou que deseja inserir o seu modelo de prédio");
-        System.out.println("Primeiro insira quantos andares acima do nível do solo terá no seu prédio:");
-        int supFloors = sc.nextInt();
-        System.out.println("Agora insira quantos andares no subterrâneo terá no seu prédio:");
-        int subFloors = sc.nextInt();
-        System.out.println("Por fim selecione quanto será a carga máxima de pessoas no elevador");
-        int passangers = sc.nextInt();
+        boolean repeatForm;
 
-        elevator = ElevatorFactory.createElevator(supFloors, subFloors, passangers);
+        do {
+            repeatForm = false;
+            try {
+                System.out.println(Ascii.DIVISOR);
+                System.out.println("Configuração personalizada do elevador");
+
+                int supFloors = getPositiveInteger();
+                int subFloors = getNonNegativeInteger();
+
+                int passengers = getValidPassengerCapacity();
+
+                Elevator elevator = ElevatorFactory.createElevator(supFloors, subFloors, passengers);
+                System.out.println("Seu elevador terá as seguintes especificações: " + elevator);
+
+                repeatForm = !confirmAction();
+
+            } catch (InputMismatchException exception) {
+                System.out.println("Erro: Entrada inválida! Digite um número inteiro.");
+                repeatForm = true;
+                sc.nextLine();
+            }
+        } while (repeatForm);
+    }
+
+    private static int getPositiveInteger() {
+        int value;
+        do {
+            System.out.println("Digite o número de andares acima do nível do solo:");
+            value = sc.nextInt();
+            if (value < 1) {
+                System.out.println("Erro: O valor deve ser pelo menos 1.");
+            }
+        } while (value < 1);
+        return value;
+    }
+
+    private static int getNonNegativeInteger() {
+        int value;
+        do {
+            System.out.println("Digite o número de andares no subsolo (se não houver, digite 0):");
+            value = sc.nextInt();
+            if (value < 0) {
+                System.out.println("Número negativo detectado. Ajustando para positivo: " + (-value));
+                value = -value;
+            }
+        } while (value < 0);
+        return value;
+    }
+
+    private static int getValidPassengerCapacity() {
+        int capacity;
+        do {
+            System.out.println("Digite a capacidade máxima de pessoas no elevador (mínimo 1):");
+            capacity = sc.nextInt();
+            if (capacity < 1) {
+                System.out.println("Erro: A capacidade deve ser pelo menos 1 passageiro.");
+            }
+        } while (capacity < 1);
+        return capacity;
+    }
+
+    private static boolean confirmAction() {
+        sc.nextLine();
+        while (true) {
+            System.out.println("Deseja prosseguir com este modelo? (S/N)");
+            String confirmationQuestion = sc.nextLine().trim().toUpperCase();
+            if (confirmationQuestion.equals("S")) return true;
+            if (confirmationQuestion.equals("N")) return false;
+            System.out.println("Opção inválida. Digite 'S' para Sim ou 'N' para Não.");
+        }
     }
 
 }

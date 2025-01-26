@@ -1,4 +1,6 @@
 import java.util.Arrays;
+import java.util.InputMismatchException;
+import java.util.Scanner;
 
 public class Elevator {
     private Directions direction;
@@ -13,27 +15,38 @@ public class Elevator {
     private final int[] totalFloors;
 
 
-
-    public void start(){
-        while(this.allRoutes > 0) {
+    public void start() {
+        this.doorOpen = false;
+        while (this.allRoutes > 0) {
             if (this.direction.equals(Directions.FIRST_DOWN) ||
                     this.direction.equals(Directions.TO_DOWN)) {
+                Ascii.printGoDown();
                 goDown();
             } else if (this.direction.equals(Directions.FIRST_UP) ||
                     this.direction.equals(Directions.TO_UP)) {
+                Ascii.printGoUp();
                 goUp();
             }
         }
 
         this.direction = Directions.STOPPED;
+        this.doorOpen = true;
+            System.out.println(this);
     }
 
     public void goUp() {
+        this.doorOpen = false;
         for (int i = 0; i < allRoutes; i++) {
             if (routes[i] > currentFloor) {
                 currentFloor = routes[i];
+                this.doorOpen = true;
                 System.out.println("Chegamos ao andar: " + currentFloor);
-                removePassenger(1);
+                if (this.currentPassenger < 1) {
+                    Ascii.printEmptyElevatorOpenedDoors();
+                } else {
+                    Ascii.printElevatorOpenedDoors();
+                }
+                removePassenger();
                 removeRoute(i);
                 i--;
             }
@@ -41,13 +54,20 @@ public class Elevator {
         this.direction = Directions.TO_DOWN;
     }
 
-    public void goDown(){
-        for(int i = this.currentFloor -1; i >= this.routes[0]; i-- ){
-            for (int j = 0; j < allRoutes; j++){
-                if(routes[j] == i && routes[j] != this.currentFloor){
+    public void goDown() {
+        this.doorOpen = false;
+        for (int i = this.currentFloor - 1; i >= this.routes[0]; i--) {
+            for (int j = 0; j < allRoutes; j++) {
+                if (routes[j] == i && routes[j] != this.currentFloor) {
                     this.currentFloor = i;
+                    this.doorOpen = true;
                     System.out.println("Chegamos no andar: " + i);
-                    removePassenger(1);
+                    if (this.currentPassenger < 1) {
+                        Ascii.printEmptyElevatorOpenedDoors();
+                    } else {
+                        Ascii.printElevatorOpenedDoors();
+                    }
+                    removePassenger();
                     removeRoute(j);
                     break;
                 }
@@ -64,58 +84,69 @@ public class Elevator {
         allRoutes--;
     }
 
-
-    //Quem chamar esse precisa adicionar uma validação para retorno e confirmar se todos passageiros conseguiram entrar
     public int addPassenger(int passenger) {
-
         int cannotEnter = 0;
-
-        if(!this.doorOpen) {
-            System.out.println("A porta está fechada");
-            return passenger;
-        }
 
         int total = this.currentPassenger += passenger;
 
-        if(total > this.capacityPassengers){
+        if (total > this.capacityPassengers) {
             cannotEnter = total - this.capacityPassengers;
             this.currentPassenger -= cannotEnter;
         }
 
+        Ascii.totalPassengers(this.getCurrentPassenger());
+
         return cannotEnter;
     }
 
-    public void removePassenger(int passenger) {
-        if(!this.doorOpen) {
-            System.out.println("A porta está fechada");
-        }else{
-            if(this.currentPassenger <= 0){
-                this.currentPassenger = 0;
-                System.out.println("Todos já descereram");
-            }else{
-                this.currentPassenger -= passenger;
-                System.out.println(this.currentPassenger + " pessoas no elevador");
+    public void removePassenger() {
+        Scanner sc = new Scanner(System.in);
+        int passenger = 0;
+        boolean invalidOperation = false;
+        try {
+            if (!this.doorOpen) {
+                System.out.println("A porta está fechada");
+            } else {
+                if (this.currentPassenger  <= 0) {
+                    System.out.println("O elevador está vazio");
+                } else {
+                    do {
+                        invalidOperation = false;
+                        System.out.println("Quantos passageiros irão descer neste andar?");
+                        passenger = sc.nextInt();
+                        if ((this.getCurrentPassenger() - passenger) < 0) {
+                            invalidOperation = true;
+                        }
+                    } while (invalidOperation);
+                    this.doorOpen = true;
+                    this.currentPassenger -= passenger;
+                    System.out.println(this.currentPassenger + " pessoas no elevador");
+                }
+                Ascii.totalPassengers(this.getCurrentPassenger());
             }
+        } catch (InputMismatchException exception) {
+            System.out.println("Erro: Entrada inválida! Digite um número inteiro.");
+            sc.nextLine();
         }
     }
 
-    public void addRoute(int floor){
+    public void addRoute(int floor) {
 
         boolean isDuplicated = false;
 
-        if(floor == this.currentFloor){
+        if (floor == this.currentFloor) {
             System.out.println("Já tem um elevador neste andar");
             return;
         }
 
-        if(this.allRoutes == 0){
+        if (this.allRoutes == 0) {
             this.direction = (this.currentFloor < floor) ? Directions.FIRST_UP : Directions.FIRST_DOWN;
         }
 
         //TODO Desacoplar estes dois trechos para uma classe de utils
 
-        for(int i = 0; i < allRoutes; i++){
-            if (floor == routes[i]){
+        for (int i = 0; i < allRoutes; i++) {
+            if (floor == routes[i]) {
                 isDuplicated = true;
                 break;
             }
@@ -136,12 +167,12 @@ public class Elevator {
         }
     }
 
-    public void callElevator(int callFloor){
-        if(this.currentFloor > callFloor){
+    public void callElevator(int callFloor) {
+        if (this.currentFloor > callFloor) {
             System.out.println("O elevador está descendo");
             addRoute(callFloor);
             start();
-        }else if(this.currentFloor < callFloor){
+        } else if (this.currentFloor < callFloor) {
             System.out.println("O elevador está subindo");
             addRoute(callFloor);
             start();
@@ -149,8 +180,7 @@ public class Elevator {
     }
 
 
-
-    Elevator(int superiorFloors, int lowerFloors,  int capacityPassengers){
+    Elevator(int superiorFloors, int lowerFloors, int capacityPassengers) {
 
         this.capacityPassengers = capacityPassengers;
         int[] totalFloors = new int[lowerFloors + superiorFloors + 1];
@@ -207,19 +237,26 @@ public class Elevator {
         return currentFloor;
     }
 
+    public int[] getRoutes() {
+        return routes;
+    }
+
+    public boolean isDoorOpen() {
+        return doorOpen;
+    }
+
+    public int getCurrentPassenger() {
+        return currentPassenger;
+    }
+
+    public int[] getTotalFloors() {
+        return totalFloors;
+    }
+
     @Override
     public String toString() {
-        return "Elevator{" +
-                "direction=" + direction +
-                ", currentPassenger=" + currentPassenger +
-                ", currentFloor=" + currentFloor +
-                ", doorOpen=" + doorOpen +
-                ", routes=" + Arrays.toString(routes) +
-                ", allRoutes=" + allRoutes +
-                ", capacityPassengers=" + capacityPassengers +
-                ", superiorFloors=" + superiorFloors +
-                ", lowerFloors=" + lowerFloors +
-                ", totalFloors=" + Arrays.toString(totalFloors) +
-                '}';
+        return "Elevador:\n" +
+                "Capacidade de passageiros: " + capacityPassengers +
+                "\nTotal de antares: " + Arrays.toString(totalFloors);
     }
 }
