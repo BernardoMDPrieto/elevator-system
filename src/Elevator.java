@@ -5,9 +5,12 @@ public class Elevator {
     private int currentPassenger;
     private int currentFloor;
     private boolean doorOpen;
-    private int[] routes;
+    private final int[] routes;
     private int allRoutes;
-    private int capacityPassengers;
+    private final int capacityPassengers;
+    private final int superiorFloors;
+    private final int lowerFloors;
+    private final int[] totalFloors;
 
 
 
@@ -101,13 +104,13 @@ public class Elevator {
         boolean isDuplicated = false;
 
         if(floor == this.currentFloor){
+            System.out.println("Já tem um elevador neste andar");
             return;
         }
 
         if(this.allRoutes == 0){
             this.direction = (this.currentFloor < floor) ? Directions.FIRST_UP : Directions.FIRST_DOWN;
         }
-
 
         //TODO Desacoplar estes dois trechos para uma classe de utils
 
@@ -117,7 +120,6 @@ public class Elevator {
                 break;
             }
         }
-
 
         if (!isDuplicated) {
             routes[allRoutes] = floor;
@@ -134,23 +136,76 @@ public class Elevator {
         }
     }
 
+    public void callElevator(int callFloor){
+        if(this.currentFloor > callFloor){
+            System.out.println("O elevador está descendo");
+            addRoute(callFloor);
+            start();
+        }else if(this.currentFloor < callFloor){
+            System.out.println("O elevador está subindo");
+            addRoute(callFloor);
+            start();
+        }
+    }
 
 
-    Elevator(int totalFloors,  int capacityPassengers){
+
+    Elevator(int superiorFloors, int lowerFloors,  int capacityPassengers){
 
         this.capacityPassengers = capacityPassengers;
-        this.routes = new int[totalFloors];
+        int[] totalFloors = new int[lowerFloors + superiorFloors + 1];
 
+        for (int i = 0, currentFloor = (lowerFloors * -1); currentFloor <= superiorFloors; i++, currentFloor++) {
+            totalFloors[i] = currentFloor;
+        }
+
+        this.lowerFloors = lowerFloors;
+        this.superiorFloors = superiorFloors;
+        this.totalFloors = totalFloors;
+        this.routes = new int[totalFloors.length];
         this.direction = Directions.STOPPED;
         this.doorOpen = true;
         this.currentFloor = 0;
         this.allRoutes = 0;
     }
 
-    public int getCurrentPassenger() {
-        return currentPassenger;
+    public Elevator() {
+
+        this.superiorFloors = 9;
+        this.lowerFloors = -2;
+        int[] totalFloors = new int[lowerFloors + superiorFloors + 1];
+
+        for (int i = 0, currentFloor = (lowerFloors * -1); currentFloor <= superiorFloors; i++, currentFloor++) {
+            totalFloors[i] = currentFloor;
+        }
+        this.totalFloors = totalFloors;
+        this.capacityPassengers = 6;
+        this.routes = new int[12];
+        this.direction = Directions.STOPPED;
+        this.doorOpen = true;
+        this.currentFloor = 0;
+        this.allRoutes = 0;
     }
 
+    public Directions getDirection() {
+        return direction;
+    }
+
+    public int getLowerFloors() {
+        return lowerFloors * -1;
+    }
+
+    public int getSuperiorFloors() {
+        return superiorFloors;
+    }
+
+    public int getAllRoutes() {
+        return allRoutes;
+    }
+
+    public int getCurrentFloor() {
+        return currentFloor;
+    }
 
     @Override
     public String toString() {
@@ -162,6 +217,9 @@ public class Elevator {
                 ", routes=" + Arrays.toString(routes) +
                 ", allRoutes=" + allRoutes +
                 ", capacityPassengers=" + capacityPassengers +
+                ", superiorFloors=" + superiorFloors +
+                ", lowerFloors=" + lowerFloors +
+                ", totalFloors=" + Arrays.toString(totalFloors) +
                 '}';
     }
 }
