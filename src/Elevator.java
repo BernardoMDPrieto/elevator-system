@@ -20,26 +20,23 @@ public class Elevator {
         while (this.allRoutes > 0) {
             if (this.direction.equals(Directions.FIRST_DOWN) ||
                     this.direction.equals(Directions.TO_DOWN)) {
-                Ascii.printGoDown();
-                Ascii.printElevator();
                 goDown();
             } else if (this.direction.equals(Directions.FIRST_UP) ||
                     this.direction.equals(Directions.TO_UP)) {
-                Ascii.printGoUp();
-                Ascii.printElevator();
                 goUp();
             }
         }
 
         this.direction = Directions.STOPPED;
         this.doorOpen = true;
-            System.out.println(this);
     }
 
     public void goUp() {
         this.doorOpen = false;
         for (int i = 0; i < allRoutes; i++) {
             if (routes[i] > currentFloor) {
+                Ascii.printGoUp();
+                Ascii.printElevator();
                 currentFloor = routes[i];
                 this.doorOpen = true;
                 System.out.println("Chegamos ao andar: " + currentFloor);
@@ -61,6 +58,8 @@ public class Elevator {
         for (int i = this.currentFloor - 1; i >= this.routes[0]; i--) {
             for (int j = 0; j < allRoutes; j++) {
                 if (routes[j] == i && routes[j] != this.currentFloor) {
+                    Ascii.printGoDown();
+                    Ascii.printElevator();
                     this.currentFloor = i;
                     this.doorOpen = true;
                     System.out.println("Chegamos no andar: " + i);
@@ -116,7 +115,11 @@ public class Elevator {
                         invalidOperation = false;
                         System.out.println("Quantos passageiros irão descer neste andar?");
                         passenger = sc.nextInt();
-                        if ((this.getCurrentPassenger() - passenger) < 0) {
+
+                        if (passenger < 0) {
+                            System.out.println("Erro: O número de passageiros não pode ser negativo.");
+                            invalidOperation = true;
+                        } else if ((this.getCurrentPassenger() - passenger) < 0) {
                             invalidOperation = true;
                         }
                     } while (invalidOperation);
