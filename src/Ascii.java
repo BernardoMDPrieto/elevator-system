@@ -95,6 +95,18 @@ public class Ascii {
         }
     }
 
+    public static void printElevator(){
+        for (int i = 0; i < Ascii.ELEVATOR_CLOSED_DOORS.length; i++) {
+            System.out.println(Ascii.ELEVATOR_CLOSED_DOORS[i]);
+
+            try {
+                Thread.sleep(200);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     public static void printGoDown(){
         System.out.println(GO_DOWN);
     }

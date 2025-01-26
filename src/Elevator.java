@@ -21,10 +21,12 @@ public class Elevator {
             if (this.direction.equals(Directions.FIRST_DOWN) ||
                     this.direction.equals(Directions.TO_DOWN)) {
                 Ascii.printGoDown();
+                Ascii.printElevator();
                 goDown();
             } else if (this.direction.equals(Directions.FIRST_UP) ||
                     this.direction.equals(Directions.TO_UP)) {
                 Ascii.printGoUp();
+                Ascii.printElevator();
                 goUp();
             }
         }
