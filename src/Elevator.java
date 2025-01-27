@@ -16,7 +16,7 @@ public class Elevator {
 
 
     public void start() {
-        this.doorOpen = false;
+        setDoorOpen(false);
         while (this.allRoutes > 0) {
             if (this.direction.equals(Directions.FIRST_DOWN) ||
                     this.direction.equals(Directions.TO_DOWN)) {
@@ -28,18 +28,19 @@ public class Elevator {
         }
 
         this.direction = Directions.STOPPED;
-        this.doorOpen = true;
+        setDoorOpen(true);
     }
 
     public void goUp() {
-        this.doorOpen = false;
+        setDoorOpen(false);
         for (int i = 0; i < allRoutes; i++) {
             if (routes[i] > currentFloor) {
                 Ascii.printGoUp();
                 Ascii.printElevator();
                 currentFloor = routes[i];
-                this.doorOpen = true;
                 System.out.println("Chegamos ao andar: " + currentFloor);
+                setDirection(Directions.STOPPED);
+                setDoorOpen(true);
                 if (this.currentPassenger < 1) {
                     Ascii.printEmptyElevatorOpenedDoors();
                 } else {
@@ -48,21 +49,23 @@ public class Elevator {
                 removePassenger();
                 removeRoute(i);
                 i--;
+                setDoorOpen(false);
             }
         }
-        this.direction = Directions.TO_DOWN;
+        setDirection(Directions.TO_DOWN);
     }
 
     public void goDown() {
-        this.doorOpen = false;
+        setDoorOpen(false);
         for (int i = this.currentFloor - 1; i >= this.routes[0]; i--) {
             for (int j = 0; j < allRoutes; j++) {
                 if (routes[j] == i && routes[j] != this.currentFloor) {
                     Ascii.printGoDown();
                     Ascii.printElevator();
                     this.currentFloor = i;
-                    this.doorOpen = true;
                     System.out.println("Chegamos no andar: " + i);
+                    setDirection(Directions.STOPPED);
+                    setDoorOpen(true);
                     if (this.currentPassenger < 1) {
                         Ascii.printEmptyElevatorOpenedDoors();
                     } else {
@@ -70,11 +73,12 @@ public class Elevator {
                     }
                     removePassenger();
                     removeRoute(j);
-                    break;
+                    setDoorOpen(false);
                 }
             }
         }
-        this.direction = Directions.TO_UP;
+
+        setDirection(Directions.TO_UP);
     }
 
     private void removeRoute(int index) {
@@ -129,7 +133,6 @@ public class Elevator {
                         sc.nextLine();
                     }
                 } while (invalidOperation);
-                this.doorOpen = true;
                 this.currentPassenger -= passenger;
                 System.out.println(this.currentPassenger + " pessoas no elevador");
             }
@@ -226,6 +229,14 @@ public class Elevator {
 
     public Directions getDirection() {
         return direction;
+    }
+
+    public void setDoorOpen(boolean doorOpen) {
+        this.doorOpen = doorOpen;
+    }
+
+    public void setDirection(Directions direction) {
+        this.direction = direction;
     }
 
     public int getLowerFloors() {
