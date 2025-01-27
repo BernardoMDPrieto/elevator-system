@@ -104,14 +104,15 @@ public class Elevator {
         Scanner sc = new Scanner(System.in);
         int passenger = 0;
         boolean invalidOperation = false;
-        try {
-            if (!this.doorOpen) {
-                System.out.println("A porta está fechada");
+
+        if (!this.doorOpen) {
+            System.out.println("A porta está fechada");
+        } else {
+            if (this.currentPassenger <= 0) {
+                System.out.println("O elevador está vazio");
             } else {
-                if (this.currentPassenger  <= 0) {
-                    System.out.println("O elevador está vazio");
-                } else {
-                    do {
+                do {
+                    try {
                         invalidOperation = false;
                         System.out.println("Quantos passageiros irão descer neste andar?");
                         passenger = sc.nextInt();
@@ -122,16 +123,17 @@ public class Elevator {
                         } else if ((this.getCurrentPassenger() - passenger) < 0) {
                             invalidOperation = true;
                         }
-                    } while (invalidOperation);
-                    this.doorOpen = true;
-                    this.currentPassenger -= passenger;
-                    System.out.println(this.currentPassenger + " pessoas no elevador");
-                }
-                Ascii.totalPassengers(this.getCurrentPassenger());
+                    } catch (InputMismatchException exception) {
+                        invalidOperation = true;
+                        System.out.println("Erro: Entrada inválida! Digite um número inteiro.");
+                        sc.nextLine();
+                    }
+                } while (invalidOperation);
+                this.doorOpen = true;
+                this.currentPassenger -= passenger;
+                System.out.println(this.currentPassenger + " pessoas no elevador");
             }
-        } catch (InputMismatchException exception) {
-            System.out.println("Erro: Entrada inválida! Digite um número inteiro.");
-            sc.nextLine();
+            Ascii.totalPassengers(this.getCurrentPassenger());
         }
     }
 
