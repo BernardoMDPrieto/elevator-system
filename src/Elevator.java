@@ -262,6 +262,6 @@ public class Elevator {
     public String toString() {
         return "Elevador:\n" +
                 "Capacidade de passageiros: " + capacityPassengers +
-                "\nTotal de antares: " + Arrays.toString(totalFloors);
+                "\nTotal de andares: " + Arrays.toString(totalFloors);
     }
 }
