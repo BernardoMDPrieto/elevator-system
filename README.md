@@ -15,7 +15,7 @@
 <br>
 <h2>Tecnologias Utilizadas</h2>
 <ul>
-  <li><b>Linguagem</b>: Java</li>
+  <li><b>Linguagem</b>: Java 17 </li>
   <li><b>Orientação a Objetos</b>: Implementação de classes para modelagem do elevador</li>
 </ul>
 <h2>Como executar</h2>
